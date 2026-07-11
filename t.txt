@@ -1,0 +1,2 @@
+Restart-Service TermService
+Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
