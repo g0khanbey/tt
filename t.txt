@@ -1,12 +1,12 @@
-Set-Service -Name TermService -StartupType Automatic
-Start-Service -Name TermService
+# 1. IPBan'in koydugu ban kurallarini temizle
+Get-NetFirewallRule -DisplayName "IPBan*" -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 
-Set-ItemProperty `
-  -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' `
-  -Name 'fDenyTSConnections' `
-  -Value 0
+# 2. IPBan calisiyorsa durdur
+Stop-Process -Name "*IPBan*" -Force -ErrorAction SilentlyContinue
+Stop-Service IPBan -Force -ErrorAction SilentlyContinue
 
-Get-NetFirewallRule -Name 'RemoteDesktop*' -ErrorAction SilentlyContinue |
-    Enable-NetFirewallRule
+# 3. Firewall'i gecici olarak kapat (RDP'yi geri almak icin)
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
-Restart-Service -Name TermService
+# 4. RDP acik mi kontrol et
+(Get-ItemProperty "HKLM:\System\CurrentControlSet\Control\Terminal Server").fDenyTSConnections
